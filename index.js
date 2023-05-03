@@ -24,12 +24,28 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const booksCollection = client.db("book_reviewer").collection("books");
+    const reviewCollection = client.db("book_reviewer").collection("reviews");
 
     app.post("/addBooks", async (req, res) => {
       const books = req.body.array;
       console.log(books);
-      const result = await booksCollection.insertMany(books);
+      // const result = await booksCollection.insertMany(books);
+      // res.send(result);
+    });
+
+    app.post("/review", async (req, res) => {
+      const review = req.body;
+      console.log(review);
+      const result = await reviewCollection.insertOne(review);
       res.send(result);
+    });
+
+    app.get("/reviews/:bookId", async (req, res) => {
+      const id = parseInt(req.params.bookId);
+      const query = { book_id: id };
+      const cursor = reviewCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.send(reviews);
     });
   } finally {
   }
